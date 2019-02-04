@@ -3,7 +3,7 @@ package hse.nedikov.bash
 import hse.nedikov.bash.logic.Command
 import java.io.*
 
-fun lex(tokens: ArrayList<String>, env: Environment): () -> PipedReader { //TODO: check correct
+fun lex(tokens: ArrayList<String>, env: Environment): () -> PipedReader {
   if (tokens.isEmpty()) return emptyCommandFlow()
   var res = lexCommand(tokens, 0, env)
   var i = res.first

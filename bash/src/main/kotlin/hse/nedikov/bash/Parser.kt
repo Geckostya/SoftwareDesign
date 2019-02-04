@@ -1,6 +1,8 @@
 package hse.nedikov.bash
 
 import hse.nedikov.bash.Parser.ParserState.*
+import hse.nedikov.bash.exceptions.ParseException
+import kotlin.reflect.KClass
 
 class Parser(private val data: String, private val variables: (String) -> String) {
   enum class ParserState {
@@ -18,7 +20,9 @@ class Parser(private val data: String, private val variables: (String) -> String
       val c = x.value
       parseChar(c)
     }
-    //TODO: exception with wrong state
+    if (state == InDQuotes || state == InQuotes) {
+      throw ParseException("Quotes haven't closed")
+    }
     if (vsb.isNotEmpty()) {
       vsb = nextVariableBuilder(vsb, sb)
     }

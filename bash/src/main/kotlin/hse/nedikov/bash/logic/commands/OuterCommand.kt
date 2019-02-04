@@ -9,7 +9,7 @@ import java.util.function.Consumer
 import java.util.function.Supplier
 
 
-class OuterCommand(val name: String, override val arguments: ArrayList<String>) : Command(arguments) {
+class OuterCommand(val name: String, private val arguments: ArrayList<String>) : Command() {
   override fun execute(input: PipedReader, output: PipedWriter) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }

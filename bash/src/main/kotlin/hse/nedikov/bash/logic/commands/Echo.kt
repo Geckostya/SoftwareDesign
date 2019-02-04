@@ -4,7 +4,7 @@ import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.util.*
 
-class Echo(override val arguments: ArrayList<String>) : Command(arguments) {
+class Echo(private val arguments: ArrayList<String>) : Command() {
   override fun execute(output: PipedWriter) {
     val sj = StringJoiner(" ", "", "\n")
     arguments.forEach { sj.add(it) }

@@ -4,7 +4,7 @@ import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.lang.Exception
 
-class WordCount(override val arguments: ArrayList<String>) : Command(arguments) {
+class WordCount(private val arguments: ArrayList<String>) : Command() {
   override fun execute(input: PipedReader, output: PipedWriter) {
     if (arguments.isNotEmpty()) {
       return execute(output)

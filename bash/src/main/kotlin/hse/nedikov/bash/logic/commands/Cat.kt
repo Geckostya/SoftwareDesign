@@ -4,7 +4,7 @@ import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.lang.Exception
 
-class Cat(override val arguments: ArrayList<String>) : Command(arguments) {
+class Cat(private val arguments: ArrayList<String>) : Command() {
   override fun execute(input: PipedReader, output: PipedWriter) {
     if (arguments.isNotEmpty()) return execute(output)
     input.forEachLine { output.write("$it\n") }

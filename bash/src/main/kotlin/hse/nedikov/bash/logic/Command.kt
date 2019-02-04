@@ -6,7 +6,7 @@ import hse.nedikov.bash.logic.environment.Assign
 import hse.nedikov.bash.logic.environment.Exit
 import java.io.*
 
-abstract class Command(open val arguments: ArrayList<String>) {
+abstract class Command {
   protected abstract fun execute(input: PipedReader, output: PipedWriter)
   protected abstract fun execute(output: PipedWriter)
 
@@ -30,14 +30,14 @@ abstract class Command(open val arguments: ArrayList<String>) {
     private val regex = Regex("[A-z_\\-][A-z_\\-0-9]*=")
 
     fun create(name: String, args: ArrayList<String>, env: Environment): Command {
-      if (args.isNotEmpty() && regex.matches(name)) {
+      if (regex.matches(name)) {
         return Assign(name.take(name.length - 1), args, env)
       }
       return when (name) {
         "echo" -> Echo(args)
         "wc" -> WordCount(args)
-        "pwd" -> Pwd(args)
-        "exit" -> Exit(args, env)
+        "pwd" -> Pwd()
+        "exit" -> Exit(env)
         "cat" -> Cat(args)
         else -> OuterCommand(name, args)
       }
