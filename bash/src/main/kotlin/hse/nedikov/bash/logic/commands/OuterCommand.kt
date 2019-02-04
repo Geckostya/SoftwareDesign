@@ -5,35 +5,41 @@ import java.io.*
 import java.util.concurrent.Executors
 import java.io.InputStreamReader
 import java.io.BufferedReader
-import java.util.function.Consumer
-import java.util.function.Supplier
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
-class OuterCommand(val name: String, private val arguments: ArrayList<String>) : Command() {
+class OuterCommand(private val name: String, private val arguments: ArrayList<String>) : Command() {
   override fun execute(input: PipedReader, output: PipedWriter) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val process = createProcess()
+
+    val processWriter = OutputStreamWriter(process.outputStream)
+    input.readLines().forEach { processWriter.write("$it\n") }
+    processWriter.flush()
+
+    startProcess(process, output)
+  }
+
+  private fun startProcess(process: Process, output: PipedWriter) {
+    val streamGobbler = StreamGobbler(process.inputStream) { s -> output.write("$s\n") }
+    Executors.newSingleThreadExecutor().submit(streamGobbler)
+    process.waitFor(10, TimeUnit.SECONDS)
   }
 
   override fun execute(output: PipedWriter) {
-    val process: Process
-    val homeDirectory = System.getProperty("user.dir")
-    if (isWindows) {
-      process = Runtime.getRuntime()
-          .exec(String.format("cmd.exe /c dir %s", homeDirectory))
-    } else {
-      process = Runtime.getRuntime()
-          .exec(String.format("sh -c ls %s", homeDirectory))
-    }
-//    val streamGobbler = StreamGobbler(process.inputStream, System.out::println)
-//    Executors.newSingleThreadExecutor().submit(streamGobbler)
-    val exitCode = process.waitFor()
-//    InputStreamReader(result).forEachLine { output.write("$it\n") }
+    val process = createProcess()
+    startProcess(process, output)
   }
 
-  private class StreamGobbler(private val inputStream: InputStream, private val consumer: Consumer<String>) : Runnable {
+  private fun createProcess(): Process {
+    val environmentStart = if (isWindows) "cmd.exe /c" else "sh -c"
+    val command = StringJoiner(" ", "$name ", "").also { joiner -> arguments.forEach { joiner.add(it) } }.toString()
+    return Runtime.getRuntime().exec("$environmentStart $command")
+  }
+
+  private class StreamGobbler(private val inputStream: InputStream, private val consumer: (String) -> Unit) : Runnable {
     override fun run() {
-      BufferedReader(InputStreamReader(inputStream)).lines()
-          .forEach(consumer)
+      BufferedReader(InputStreamReader(inputStream)).lines().forEach(consumer)
     }
   }
 

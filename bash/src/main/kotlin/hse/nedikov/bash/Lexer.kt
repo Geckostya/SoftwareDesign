@@ -3,31 +3,15 @@ package hse.nedikov.bash
 import hse.nedikov.bash.logic.Command
 import java.io.*
 
-fun lex(tokens: ArrayList<String>, env: Environment): () -> PipedReader {
-  if (tokens.isEmpty()) return emptyCommandFlow()
-  var res = lexCommand(tokens, 0, env)
-  var i = res.first
-  val command = res.second
+fun lex(tokens: ArrayList<String>, env: Environment): ArrayList<Command> {
   val commands = ArrayList<Command>()
+  var i = 0;
   while (i < tokens.size) {
-    res = lexCommand(tokens, i, env)
+    val res = lexCommand(tokens, i, env)
     i = res.first
     commands.add(res.second)
   }
-  return commandFlow(command, commands)
-
-}
-
-private fun commandFlow(command: Command, commands: ArrayList<Command>): () -> PipedReader = {
-  commands.reversed().fold(command.execute()) { reader, command ->
-    command.execute(reader)
-  }
-}
-
-private fun emptyCommandFlow(): () -> PipedReader = {
-  val reader = PipedReader()
-  PipedWriter(reader).close()
-  reader
+  return commands
 }
 
 private fun lexCommand(tokens: ArrayList<String>, start: Int, env: Environment): Pair<Int, Command> {
