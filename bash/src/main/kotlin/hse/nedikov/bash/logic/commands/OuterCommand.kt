@@ -22,7 +22,10 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
 
   private fun startProcess(process: Process, output: PipedWriter) {
     val streamGobbler = StreamGobbler(process.inputStream) { s -> output.write("$s\n") }
-    Executors.newSingleThreadExecutor().submit(streamGobbler)
+    val errorGobbler = StreamGobbler(process.errorStream) { s -> output.write("$s\n") }
+    val executor = Executors.newSingleThreadExecutor()
+    executor.submit(streamGobbler)
+    executor.submit(errorGobbler)
     process.waitFor(10, TimeUnit.SECONDS)
   }
 

@@ -45,7 +45,5 @@ class LexerTest {
 
   companion object {
     val environment = Environment()
-
-    fun list(vararg values: String): ArrayList<String> = ArrayList<String>().apply { addAll(values) }
   }
 }
