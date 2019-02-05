@@ -4,6 +4,9 @@ import hse.nedikov.bash.logic.Command
 import java.io.PipedReader
 import java.io.PipedWriter
 
+/**
+ * The main interpreter function
+ */
 fun main(args: Array<String>) {
   val env = Environment()
   while (env.isWorking()) {
@@ -27,7 +30,6 @@ private fun commandFlow(command: Command, commands: ArrayList<Command>): () -> P
     command.execute(reader)
   }
 }
-
 
 private fun emptyCommandFlow(): () -> PipedReader = {
   val reader = PipedReader()

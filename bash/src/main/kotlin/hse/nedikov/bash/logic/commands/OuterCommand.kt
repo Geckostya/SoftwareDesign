@@ -8,8 +8,15 @@ import java.io.BufferedReader
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
+/**
+ * Class for calling commands in outer interpreter
+ * @param name name of the command
+ */
 class OuterCommand(private val name: String, private val arguments: ArrayList<String>) : Command() {
+  /**
+   * Calls the command in outer interpreter and print theirs output or error to the output
+   * in case when the command is executed in less than 10 seconds
+   */
   override fun execute(input: PipedReader, output: PipedWriter) {
     val process = createProcess()
 
@@ -20,6 +27,10 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
     startProcess(process, output)
   }
 
+  /**
+   * Calls command in outer interpreter and print theirs output or error to the output
+   * in case when the command is executed in less than 10 seconds
+   */
   private fun startProcess(process: Process, output: PipedWriter) {
     val streamGobbler = StreamGobbler(process.inputStream) { s -> output.write("$s\n") }
     val errorGobbler = StreamGobbler(process.errorStream) { s -> output.write("$s\n") }

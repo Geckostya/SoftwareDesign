@@ -4,21 +4,30 @@ import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.lang.Exception
 
+/**
+ * wc command which calculates count of lines, words and bytes in files or input
+ */
 class WordCount(private val arguments: ArrayList<String>) : Command() {
+  /**
+   * Calculates count of lines, words and bytes in input if arguments is empty and in files otherwise
+   */
   override fun execute(input: PipedReader, output: PipedWriter) {
     if (arguments.isNotEmpty()) {
       return execute(output)
     }
-    val r = wordCount(input)
+    val r = calcInput(input)
     output.write("${r.lines} ${r.words} ${r.bytes}\n")
     output.close()
   }
 
+  /**
+   * Calculates count of lines, words and bytes in files and prints results for each and in total
+   */
   override fun execute(output: PipedWriter) {
     val result = WCResult()
     for (arg in arguments) {
       try {
-        val r = wordCount(FileReader(arg))
+        val r = calcInput(FileReader(arg))
         output.write("${r.lines} ${r.words} ${r.bytes} $arg\n")
       } catch (e: Exception) {
         output.write("wc: ${e.message}\n")
@@ -27,7 +36,7 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
     output.write("${result.lines} ${result.words} ${result.bytes} total\n")
   }
 
-  private fun wordCount(input: Reader): WCResult {
+  private fun calcInput(input: Reader): WCResult {
     val result = WCResult()
     input.forEachLine {
       result.lines++

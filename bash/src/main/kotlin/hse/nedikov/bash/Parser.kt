@@ -2,20 +2,28 @@ package hse.nedikov.bash
 
 import hse.nedikov.bash.Parser.ParserState.*
 import hse.nedikov.bash.exceptions.ParseException
+import java.lang.RuntimeException
 import kotlin.reflect.KClass
 
+/**
+ * Parser for bash interpreter
+ */
 class Parser(private val data: String, private val variables: (String) -> String) {
   enum class ParserState {
-    InDQuotes, InQuotes, Text, TextVariable, InDQuotesVariable, Identifier
+    InDQuotes, InQuotes, Text, TextVariable, InDQuotesVariable, Identifier, Finished
   }
 
   private var state = Identifier
   private var sb = StringBuilder()
   private var vsb = StringBuilder()
-  private lateinit var result: ArrayList<String>
+  private val result = ArrayList<String>()
 
+  /**
+   * Parse input to the tokens list
+   */
   fun parse(): ArrayList<String> {
-    result = ArrayList()
+    if (state == Finished) return result
+
     for (x in data.withIndex()) {
       val c = x.value
       parseChar(c)
@@ -29,6 +37,7 @@ class Parser(private val data: String, private val variables: (String) -> String
     if (sb.isNotEmpty()) {
       result.add(sb.toString())
     }
+    state = Finished
     return result
   }
 
@@ -40,6 +49,7 @@ class Parser(private val data: String, private val variables: (String) -> String
       InDQuotes -> parseInDQuotesChar(c)
       TextVariable -> parseVariableChar(c, Text)
       InDQuotesVariable -> parseVariableChar(c, InDQuotes)
+      Finished -> throw RuntimeException("unexpected finished state")
     }
   }
 

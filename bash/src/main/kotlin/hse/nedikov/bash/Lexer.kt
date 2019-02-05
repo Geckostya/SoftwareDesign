@@ -3,6 +3,9 @@ package hse.nedikov.bash
 import hse.nedikov.bash.logic.Command
 import java.io.*
 
+/**
+ * Creates a list of commands by string tokens in pipes
+ */
 fun lex(tokens: ArrayList<String>, env: Environment): ArrayList<Command> {
   val commands = ArrayList<Command>()
   var i = 0;
