@@ -16,7 +16,6 @@ class Echo(private val arguments: ArrayList<String>) : Command() {
     val sj = StringJoiner(" ", "", "\n")
     arguments.forEach { sj.add(it) }
     output.write(sj.toString())
-    output.close()
   }
 
   /**
