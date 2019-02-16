@@ -1,13 +1,14 @@
 package hse.nedikov.bash.logic.commands
 
-import hse.nedikov.bash.logic.Command
+import hse.nedikov.bash.Environment
+import hse.nedikov.bash.logic.EnvironmentCommand
 import java.io.*
 import java.lang.Exception
 
 /**
  * cat command which prints files entries to the output stream
  */
-class Cat(private val arguments: ArrayList<String>) : Command() {
+class Cat(private val arguments: ArrayList<String>, override val env: Environment) : EnvironmentCommand(env) {
   /**
    * Prints input to the output if has no arguments and prints entries of files from arguments otherwise
    */
@@ -22,7 +23,7 @@ class Cat(private val arguments: ArrayList<String>) : Command() {
   override fun execute(output: PipedWriter) {
     for (arg in arguments) {
       try {
-        FileReader(arg).forEachLine { output.write(it + System.lineSeparator()) }
+        FileReader(env.getCanonicalPath(arg)).forEachLine { output.write(it + System.lineSeparator()) }
       } catch (e: Exception) {
         output.write("cat: ${e.message}")
       }

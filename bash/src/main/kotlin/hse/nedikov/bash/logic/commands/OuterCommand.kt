@@ -1,18 +1,17 @@
 package hse.nedikov.bash.logic.commands
 
-import hse.nedikov.bash.logic.Command
+import hse.nedikov.bash.Environment
+import hse.nedikov.bash.logic.EnvironmentCommand
 import java.io.*
-import java.util.concurrent.Executors
-import java.io.InputStreamReader
-import java.io.BufferedReader
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 /**
  * Class for calling commands in outer interpreter
  * @param name name of the command
  */
-class OuterCommand(private val name: String, private val arguments: ArrayList<String>) : Command() {
+class OuterCommand(private val name: String,
+                   private val arguments: ArrayList<String>,
+                   override val env: Environment) : EnvironmentCommand(env) {
   /**
    * Calls the command in outer interpreter and print theirs output or error to the output
    * in case when the command is executed in less than 10 seconds
@@ -45,7 +44,7 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
   private fun createProcess(): Process {
     val environmentStart = if (isWindows) "cmd.exe /c" else ""
     val command = StringJoiner(" ", "$name ", "").also { joiner -> arguments.forEach { joiner.add(it) } }.toString()
-    return Runtime.getRuntime().exec("$environmentStart $command")
+    return Runtime.getRuntime().exec("$environmentStart $command", null, env.getCanonicalFile("./"))
   }
 
   companion object {
