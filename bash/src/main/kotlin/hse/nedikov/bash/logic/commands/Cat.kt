@@ -22,7 +22,7 @@ class Cat(private val arguments: ArrayList<String>) : Command() {
   override fun execute(output: PipedWriter) {
     for (arg in arguments) {
       try {
-        FileReader(arg).forEachLine { output.write(arg) }
+        FileReader(arg).forEachLine { output.write(it + System.lineSeparator()) }
       } catch (e: Exception) {
         output.write("cat: ${e.message}")
       }
