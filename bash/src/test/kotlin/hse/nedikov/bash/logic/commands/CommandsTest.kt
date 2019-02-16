@@ -28,10 +28,10 @@ class CommandsTest {
     env.changeDirectory(tmpFolder.root.canonicalPath)
     val reader = Ls(list(), env).execute()
     assertEquals("""
+      file
       folder
       oneMoreFile
       oneMoreFolder
-      file
     """.trimIndent(), stringFromReader(reader))
     tmpFolder.delete()
   }
@@ -45,9 +45,9 @@ class CommandsTest {
     env.changeDirectory(tmpFolder.root.canonicalPath)
     val reader = Ls(list("folder"), env).execute()
     assertEquals("""
+      file
       oneMoreFile
       oneMoreFolder
-      file
     """.trimIndent(), stringFromReader(reader))
     tmpFolder.delete()
   }

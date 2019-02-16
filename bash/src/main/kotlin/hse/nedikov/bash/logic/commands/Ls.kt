@@ -31,7 +31,7 @@ class Ls(private val arguments: ArrayList<String>, private val env: Environment)
     private fun printFile(file: File, output: PipedWriter) {
         when {
             file.isFile -> output.write(file.name + System.lineSeparator())
-            file.isDirectory -> file.listFiles().forEach { output.write(it.name + System.lineSeparator()) }
+            file.isDirectory -> file.listFiles().sorted().forEach { output.write(it.name + System.lineSeparator()) }
             else -> output.write("ls: file or directory not found" + System.lineSeparator())
         }
     }
