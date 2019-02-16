@@ -3,7 +3,8 @@ package hse.nedikov.bash.logic.commands
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.ShowHelpException
 import com.xenomachina.argparser.default
-import hse.nedikov.bash.logic.Command
+import hse.nedikov.bash.Environment
+import hse.nedikov.bash.logic.EnvironmentCommand
 import java.io.*
 import java.lang.IllegalArgumentException
 import java.util.ArrayList
@@ -11,7 +12,7 @@ import java.util.ArrayList
 /**
  * grep command which prints all lines with pattern matched substring
  */
-class Grep(private val arguments: ArrayList<String>) : Command() {
+class Grep(private val arguments: ArrayList<String>, override val env: Environment) : EnvironmentCommand(env) {
   /**
    * Takes lines for grep from input
    */
@@ -25,7 +26,8 @@ class Grep(private val arguments: ArrayList<String>) : Command() {
    */
   override fun execute(output: PipedWriter) {
     val args = parseArguments(::GrepArgs, output) ?: return
-    grep(args.file, output, args)
+    val input = FileReader(env.getCanonicalPath(args.file))
+    grep(input, output, args)
   }
 
   private fun <T> parseArguments(constructor: (ArgParser) -> T, output: Writer): T? {
@@ -35,11 +37,11 @@ class Grep(private val arguments: ArrayList<String>) : Command() {
     } catch (e: ShowHelpException) {
       println(e.printUserMessage(output, "grep", 80))
     }
-    return null;
+    return null
   }
 
   private fun grep(input: Reader, output: PipedWriter, args: PipedGrepArgs) {
-    var linesToWrite = 0;
+    var linesToWrite = 0
     input.forEachLine {
       val matchString = if (args.ignoreCase) it.toLowerCase() else it
       val matchPattern = if (args.ignoreCase) args.pattern.toLowerCase() else args.pattern
@@ -47,7 +49,7 @@ class Grep(private val arguments: ArrayList<String>) : Command() {
       val regex = Regex(".*?$wordEnd$matchPattern$wordEnd.*")
       if (matchString.matches(regex)) {
         output.write("$it\n")
-        linesToWrite = args.afterContext;
+        linesToWrite = args.afterContext
       } else if (linesToWrite > 0) {
         output.write("$it\n")
         linesToWrite--
@@ -67,5 +69,5 @@ private open class PipedGrepArgs(parser: ArgParser) {
 }
 
 private class GrepArgs(parser: ArgParser) : PipedGrepArgs(parser) {
-  val file by parser.positional("FILE") { FileReader(this) }
+  val file by parser.positional("FILE") { this }
 }

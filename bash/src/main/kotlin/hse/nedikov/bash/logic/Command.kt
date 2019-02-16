@@ -47,12 +47,14 @@ abstract class Command {
       }
       return when (name) {
         "echo" -> Echo(args)
-        "wc" -> WordCount(args)
-        "pwd" -> Pwd()
+        "wc" -> WordCount(args, env)
+        "pwd" -> Pwd(env)
         "exit" -> Exit(env)
-        "cat" -> Cat(args)
-        "grep" -> Grep(args)
-        else -> OuterCommand(name, args)
+        "cat" -> Cat(args, env)
+        "grep" -> Grep(args, env)
+        "cd" -> Cd(args, env)
+        "ls" -> Ls(args, env)
+        else -> OuterCommand(name, args, env)
       }
     }
   }
