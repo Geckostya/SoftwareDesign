@@ -1,5 +1,6 @@
 package hse.nedikov.bash.logic.commands
 
+import hse.nedikov.bash.Environment
 import org.junit.Test
 import java.io.PipedReader
 import java.io.PipedWriter
@@ -35,31 +36,31 @@ class CommandsTest {
 
   @Test
   fun catInputStream() {
-    val reader = Cat(list()).execute(readerFromString("kekes leles"))
+    val reader = Cat(list(), Environment()).execute(readerFromString("kekes leles"))
     assertEquals("kekes leles", stringFromReader(reader))
   }
 
   @Test
   fun pwdSimple() {
-    val reader = Pwd().execute()
+    val reader = Pwd(Environment()).execute()
     assertTrue(stringFromReader(reader).isNotEmpty())
   }
 
   @Test
   fun pwdSimpleWithInputStream() {
-    val reader = Pwd().execute(readerFromString("kekes leles"))
+    val reader = Pwd(Environment()).execute(readerFromString("kekes leles"))
     assertTrue(stringFromReader(reader).isNotEmpty())
   }
 
   @Test
   fun wordCountSimple() {
-    val reader = WordCount(list()).execute(readerFromString("lol kek cheburek"))
+    val reader = WordCount(list(), Environment()).execute(readerFromString("lol kek cheburek"))
     assertEquals("1 3 16", stringFromReader(reader))
   }
 
   @Test
   fun grepTest() {
-    val reader = Grep(list("lol")).execute(readerFromString(keklolString))
+    val reader = Grep(list("lol"), Environment()).execute(readerFromString(keklolString))
     assertEquals("""
       lol kek
       kek lol
@@ -71,7 +72,7 @@ class CommandsTest {
 
   @Test
   fun grepWordRegexpTest() {
-    val reader = Grep(list("lol", "-w")).execute(readerFromString(keklolString))
+    val reader = Grep(list("lol", "-w"), Environment()).execute(readerFromString(keklolString))
     assertEquals("""
       lol kek
       kek lol
@@ -81,7 +82,7 @@ class CommandsTest {
 
   @Test
   fun grepIgnoreCaseTest() {
-    val reader = Grep(list("LoL", "-i")).execute(readerFromString(keklolString))
+    val reader = Grep(list("LoL", "-i"), Environment()).execute(readerFromString(keklolString))
     assertEquals("""
       lol kek
       kek lol
@@ -94,9 +95,9 @@ class CommandsTest {
 
   @Test
   fun grepAfterContextTest() {
-    var reader = Grep(list("lol", "-A", "5")).execute(readerFromString(keklolString))
+    var reader = Grep(list("lol", "-A", "5"), Environment()).execute(readerFromString(keklolString))
     assertEquals(keklolString, stringFromReader(reader))
-    reader = Grep(list("lol", "-A", "1")).execute(readerFromString(keklolString))
+    reader = Grep(list("lol", "-A", "1"), Environment()).execute(readerFromString(keklolString))
     assertEquals("""
       lol kek
       kek lol
