@@ -53,6 +53,7 @@ abstract class Command {
         "cat" -> Cat(args, env)
         "grep" -> Grep(args, env)
         "cd" -> Cd(args, env)
+        "ls" -> Ls(args, env)
         else -> OuterCommand(name, args, env)
       }
     }

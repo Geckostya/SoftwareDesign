@@ -55,9 +55,9 @@ class Environment {
 
   fun getCanonicalFile(path: String): File {
       return if (isAbsolutePath(path)) {
-        File(path)
+        File(path).canonicalFile
       } else {
-        File(workingDirectory, path)
+        File(workingDirectory, path).canonicalFile
       }
   }
 
