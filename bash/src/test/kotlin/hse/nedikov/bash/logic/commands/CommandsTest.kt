@@ -8,8 +8,92 @@ import java.util.*
 import hse.nedikov.bash.list
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import java.io.File
 
 class CommandsTest {
+
+  @Rule
+  @JvmField
+  val tmpFolder = TemporaryFolder()
+
+  @Test
+  fun lsNoArgumentsTest() {
+    tmpFolder.newFile("file")
+    tmpFolder.newFile("oneMoreFile")
+    tmpFolder.newFolder("folder")
+    tmpFolder.newFolder("oneMoreFolder")
+    val env = Environment()
+    env.changeDirectory(tmpFolder.root.canonicalPath)
+    val reader = Ls(list(), env).execute()
+    assertEquals("""
+      folder
+      oneMoreFile
+      oneMoreFolder
+      file
+    """.trimIndent(), stringFromReader(reader))
+    tmpFolder.delete()
+  }
+
+  @Test
+  fun lsOneArgumentTest() {
+    tmpFolder.newFolder("folder", "oneMoreFolder")
+    tmpFolder.newFile("folder/file")
+    tmpFolder.newFile("folder/oneMoreFile")
+    val env = Environment()
+    env.changeDirectory(tmpFolder.root.canonicalPath)
+    val reader = Ls(list("folder"), env).execute()
+    assertEquals("""
+      oneMoreFile
+      oneMoreFolder
+      file
+    """.trimIndent(), stringFromReader(reader))
+    tmpFolder.delete()
+  }
+
+  @Test
+  fun lsFileTest() {
+    tmpFolder.newFile("file")
+    val env = Environment()
+    env.changeDirectory(tmpFolder.root.canonicalPath)
+    val reader = Ls(list("file"), env).execute()
+    assertEquals("file", stringFromReader(reader))
+    tmpFolder.delete()
+  }
+
+  @Test
+  fun cdAndThenLsTest() {
+    tmpFolder.newFolder("folder", "oneMoreFolder")
+    val env = Environment()
+    Cd(list(tmpFolder.root.canonicalPath), env).execute()
+    val reader = Ls(list("folder"), env).execute()
+    assertEquals("oneMoreFolder", stringFromReader(reader))
+    tmpFolder.delete()
+  }
+
+  @Test
+  fun cdRelativePathTest() {
+    val env = Environment()
+    Cd(list("../"), env).execute()
+    assertEquals(File("../").canonicalPath, env.getCanonicalPath("./"))
+  }
+
+  @Test
+  fun cdAbsoluteTest() {
+    val env = Environment()
+    Cd(list(File("../").canonicalPath), env).execute()
+    assertEquals(File("../").canonicalPath, env.getCanonicalPath("./"))
+  }
+
+  @Test
+  fun cdAndThenPwdTest() {
+    val env = Environment()
+    Cd(list("../"), env).execute()
+    val reader = Pwd(env).execute()
+    assertEquals(File("../").canonicalPath, stringFromReader(reader))
+  }
+
   @Test
   fun echoSimple() {
     val reader = Echo(list("lol")).execute()
