@@ -1,12 +1,13 @@
 package hse.nedikov.bash.logic.commands
 
+import hse.nedikov.bash.Environment
 import hse.nedikov.bash.logic.Command
 import java.io.*
 
 /**
  * pwd command which prints current working directory
  */
-class Pwd : Command() {
+class Pwd(override val env: Environment) : Command(env) {
   /**
    * Prints current working directory to the output
    */
@@ -19,7 +20,7 @@ class Pwd : Command() {
    * Prints current working directory to the output
    */
   override fun execute(output: PipedWriter) {
-    output.write(System.getProperty("user.dir") + "\n")
+    output.write(env.getPath("./") + "\n")
   }
 
 }
