@@ -62,6 +62,24 @@ class CommandsTest {
     tmpFolder.delete()
   }
 
+  @Test(expected = RuntimeException::class)
+  fun cdTooManyArgumentsTest() {
+    Cd(list("arg1", "arg2"), Environment()).execute()
+  }
+
+  @Test
+  fun cdNoArgumentsTest() {
+    val env = Environment()
+    Cd(list(), env).execute()
+    assertEquals(System.getProperty("user.home"), env.getCanonicalPath("./"))
+  }
+
+
+    @Test(expected = RuntimeException::class)
+  fun cdDirectoryNotFoundTest() {
+    Cd(list("baddirectoryyyyyy"), Environment()).execute()
+  }
+
   @Test
   fun cdAndThenLsTest() {
     tmpFolder.newFolder("folder", "oneMoreFolder")

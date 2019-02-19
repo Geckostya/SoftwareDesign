@@ -54,14 +54,6 @@ class Environment {
   }
 
   fun getCanonicalFile(path: String): File {
-      return if (isAbsolutePath(path)) {
-        File(path).canonicalFile
-      } else {
-        File(workingDirectory, path).canonicalFile
-      }
-  }
-
-  private fun isAbsolutePath(path: String): Boolean {
-    return File.listRoots().fold(false) { res, file -> res || path.startsWith(file.canonicalPath) }
+    return workingDirectory.resolve(path)
   }
 }
