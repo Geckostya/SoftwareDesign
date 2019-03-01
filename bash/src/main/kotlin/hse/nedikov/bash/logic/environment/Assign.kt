@@ -1,7 +1,7 @@
 package hse.nedikov.bash.logic.environment
 
 import hse.nedikov.bash.Environment
-import hse.nedikov.bash.logic.EnvironmentCommand
+import hse.nedikov.bash.logic.Command
 import java.io.PipedReader
 import java.io.PipedWriter
 import java.lang.Exception
@@ -11,7 +11,7 @@ import java.lang.Exception
  * @param name name of variable
  */
 class Assign(private val name:String, private val arguments: ArrayList<String>, override val env: Environment)
-  : EnvironmentCommand(env) {
+  : Command(env) {
 
   /**
    * Do nothing in this case

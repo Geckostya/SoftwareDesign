@@ -1,5 +1,6 @@
 package hse.nedikov.bash.logic.commands
 
+import hse.nedikov.bash.Environment
 import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.lang.Exception
@@ -7,7 +8,7 @@ import java.lang.Exception
 /**
  * wc command which calculates count of lines, words and bytes in files or input
  */
-class WordCount(private val arguments: ArrayList<String>) : Command() {
+class WordCount(private val arguments: ArrayList<String>, override val env: Environment) : Command(env) {
   /**
    * Calculates count of lines, words and bytes in input if arguments is empty and in files otherwise
    */
@@ -27,7 +28,7 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
     val result = WCResult()
     for (arg in arguments) {
       try {
-        val r = calcInput(FileReader(arg))
+        val r = calcInput(FileReader(env.getPath(arg)))
         output.write("${r.lines} ${r.words} ${r.bytes} $arg\n")
       } catch (e: Exception) {
         output.write("wc: ${e.message}\n")

@@ -9,7 +9,7 @@ import java.io.*
 /**
  * Base class for all interpreter commands
  */
-abstract class Command {
+abstract class Command(open val env: Environment) {
   protected abstract fun execute(input: PipedReader, output: PipedWriter)
   protected abstract fun execute(output: PipedWriter)
 
@@ -46,12 +46,14 @@ abstract class Command {
         return Assign(name.take(name.length - 1), args, env)
       }
       return when (name) {
-        "echo" -> Echo(args)
-        "wc" -> WordCount(args)
-        "pwd" -> Pwd()
+        "echo" -> Echo(args, env)
+        "wc" -> WordCount(args, env)
+        "pwd" -> Pwd(env)
         "exit" -> Exit(env)
-        "cat" -> Cat(args)
-        else -> OuterCommand(name, args)
+        "cat" -> Cat(args, env)
+        "cd" -> Cd(args, env)
+        "ls" -> Ls(args, env)
+        else -> OuterCommand(name, args, env)
       }
     }
   }

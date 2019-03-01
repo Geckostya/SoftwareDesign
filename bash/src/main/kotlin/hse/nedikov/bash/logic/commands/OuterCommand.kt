@@ -1,5 +1,6 @@
 package hse.nedikov.bash.logic.commands
 
+import hse.nedikov.bash.Environment
 import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.util.concurrent.Executors
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit
  * Class for calling commands in outer interpreter
  * @param name name of the command
  */
-class OuterCommand(private val name: String, private val arguments: ArrayList<String>) : Command() {
+class OuterCommand(private val name: String, private val arguments: ArrayList<String>, override val env: Environment) : Command(env) {
   /**
    * Calls the command in outer interpreter and print theirs output or error to the output
    * in case when the command is executed in less than 10 seconds
