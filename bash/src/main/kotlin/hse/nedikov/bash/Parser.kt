@@ -1,162 +1,33 @@
 package hse.nedikov.bash
 
-import hse.nedikov.bash.Parser.ParserState.*
-import hse.nedikov.bash.exceptions.ParseException
-import java.lang.RuntimeException
-import kotlin.reflect.KClass
+import hse.nedikov.bash.logic.Command
+
+private const val PIPE = "|"
 
 /**
- * Parser for bash interpreter
+ * Creates a list of commands by string tokens in pipes
  */
-class Parser(private val data: String, private val variables: (String) -> String) {
-  enum class ParserState {
-    InDQuotes, InQuotes, Text, TextVariable, InDQuotesVariable, Identifier, Finished
+fun parse(tokens: ArrayList<String>, env: Environment): ArrayList<Command> {
+  if (tokens.isNotEmpty() && tokens.last() == PIPE) {
+    throw Exception("$PIPE in end of command line")
   }
-
-  private var state = Identifier
-  private var sb = StringBuilder()
-  private var vsb = StringBuilder()
-  private val result = ArrayList<String>()
-
-  /**
-   * Parse input to the tokens list
-   */
-  fun parse(): ArrayList<String> {
-    if (state == Finished) return result
-
-    for (x in data.withIndex()) {
-      val c = x.value
-      parseChar(c)
-    }
-    if (state == InDQuotes || state == InQuotes) {
-      throw ParseException("Quotes haven't closed")
-    }
-    if (vsb.isNotEmpty()) {
-      vsb = nextVariableBuilder(vsb, sb)
-    }
-    if (sb.isNotEmpty()) {
-      result.add(sb.toString())
-    }
-    state = Finished
-    return result
+  val commands = ArrayList<Command>()
+  var i = 0;
+  while (i < tokens.size) {
+    val res = parseCommand(tokens, i, env)
+    i = res.first
+    commands.add(res.second)
   }
-
-  private fun parseChar(c: Char) {
-    when (state) {
-      Identifier -> parseIdentifierChar(c)
-      Text -> parseTextChar(c)
-      InQuotes -> parseInQuotesChar(c)
-      InDQuotes -> parseInDQuotesChar(c)
-      TextVariable -> parseVariableChar(c, Text)
-      InDQuotesVariable -> parseVariableChar(c, InDQuotes)
-      Finished -> throw RuntimeException("unexpected finished state")
-    }
-  }
-
-  private fun parseIdentifierChar(c: Char) {
-    when (c) {
-      isIdentifier(c) -> sb.append(c)
-      isDigit(c) -> {
-        if (sb.isNotEmpty()) sb.append(c)
-        else {
-          sb.append(c)
-          state = Text
-        }
-      }
-      '=' -> {
-        sb.append(c)
-        sb = nextBuilder(sb, result)
-        state = Text
-      }
-      in whiteSpaces -> {
-        if (sb.isNotEmpty()) {
-          state = Text
-          parseChar(c)
-        }
-      }
-      else -> {
-        state = Text
-        parseChar(c)
-      }
-    }
-  }
-
-  private fun parseVariableChar(c: Char, parent: ParserState) {
-    when (c) {
-      isIdentifier(c) -> vsb.append(c)
-      isDigit(c) -> {
-        if (vsb.isNotEmpty()) vsb.append(c)
-        else {
-          vsb = nextVariableBuilder(vsb, sb)
-          sb.append(c)
-          state = Text
-        }
-      }
-      else -> {
-        vsb = nextVariableBuilder(vsb, sb)
-        state = parent
-        parseChar(c)
-      }
-    }
-  }
-
-  private fun nextVariableBuilder(sb: StringBuilder, container: StringBuilder): StringBuilder {
-    container.append(variables(sb.toString()))
-    return StringBuilder()
-  }
-
-  private fun parseInDQuotesChar(c: Char) {
-    when (c) {
-      '"' -> {
-        sb = nextBuilder(sb, result)
-        state = Text
-      }
-      '$' -> state = InDQuotesVariable
-      else -> sb.append(c)
-    }
-  }
-
-  private fun parseInQuotesChar(c: Char) {
-    when (c) {
-      '\'' -> {
-        sb = nextBuilder(sb, result)
-        state = Text
-      }
-      else -> sb.append(c)
-    }
-  }
-
-  private fun parseTextChar(c: Char) {
-    when (c) {
-      in whiteSpaces -> {
-        if (sb.isNotEmpty()) {
-          sb = nextBuilder(sb, result)
-        }
-      }
-      '"' -> state = InDQuotes
-      '\'' -> state = InQuotes
-      '$' -> state = TextVariable
-      else -> sb.append(c)
-    }
-  }
-
-  companion object {
-    val whiteSpaces = Array(4) {
-      when (it) {
-        0 -> ' '
-        1 -> '\t'
-        2 -> '\n'
-        else -> '\r'
-      }
-    }
-
-    fun isIdentifier(c: Char): Char = if (c in 'a'..'z' || c in 'z'..'Z' || c == '_' || c == '-') c else '_'
-
-    fun isDigit(c: Char): Char = if (c in '0'..'9') c else '0'
-
-    fun nextBuilder(sb: StringBuilder, container: ArrayList<String>): StringBuilder {
-      container.add(sb.toString())
-      return StringBuilder()
-    }
-  }
+  return commands
 }
+
+private fun parseCommand(tokens: ArrayList<String>, start: Int, env: Environment): Pair<Int, Command> {
+  var i = start
+  val name = tokens[i++]
+  val args = ArrayList<String>()
+  while (i < tokens.size && tokens[i] != PIPE) {
+    args.add(tokens[i++])
+  }
+  return (i + 1) to Command.create(name, args, env)
+}
+

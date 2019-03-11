@@ -53,8 +53,8 @@ class CommandsTest {
 
   @Test
   fun wordCountSimple() {
-    val reader = WordCount(list()).execute(readerFromString("lol kek cheburek"))
-    assertEquals("1 3 16", stringFromReader(reader))
+    val reader = WordCount(list()).execute(readerFromString("lol kek   cheburek"))
+    assertEquals("1 3 " + (18 + System.lineSeparator().toByteArray().size), stringFromReader(reader))
   }
 
   companion object {
@@ -65,7 +65,7 @@ class CommandsTest {
     }
 
     fun stringFromReader(reader: PipedReader): String {
-      val joiner = StringJoiner("\n")
+      val joiner = StringJoiner(System.lineSeparator())
       reader.readLines().forEach { joiner.add(it) }
       return joiner.toString()
     }

@@ -16,7 +16,7 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
       return execute(output)
     }
     val r = calcInput(input)
-    output.write("${r.lines} ${r.words} ${r.bytes}\n")
+    output.write("${r.lines} ${r.words} ${r.bytes}" + System.lineSeparator())
     output.close()
   }
 
@@ -28,20 +28,20 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
     for (arg in arguments) {
       try {
         val r = calcInput(FileReader(arg))
-        output.write("${r.lines} ${r.words} ${r.bytes} $arg\n")
+        output.write("${r.lines} ${r.words} ${r.bytes} $arg" + System.lineSeparator())
       } catch (e: Exception) {
-        output.write("wc: ${e.message}\n")
+        throw Exception("wc: ${e.message}" + System.lineSeparator())
       }
     }
-    output.write("${result.lines} ${result.words} ${result.bytes} total\n")
+    output.write("${result.lines} ${result.words} ${result.bytes} total" + System.lineSeparator())
   }
 
   private fun calcInput(input: Reader): WCResult {
     val result = WCResult()
     input.forEachLine {
       result.lines++
-      result.words += it.split(' ').size
-      result.bytes += it.toByteArray().size
+      result.words += it.split(Regex("\\s+")).size
+      result.bytes += (it + System.lineSeparator()).toByteArray().size
     }
     return result
   }

@@ -13,7 +13,7 @@ class Cat(private val arguments: ArrayList<String>) : Command() {
    */
   override fun execute(input: PipedReader, output: PipedWriter) {
     if (arguments.isNotEmpty()) return execute(output)
-    input.forEachLine { output.write("$it\n") }
+    input.forEachLine { output.write(it + System.lineSeparator()) }
   }
 
   /**
@@ -22,11 +22,11 @@ class Cat(private val arguments: ArrayList<String>) : Command() {
   override fun execute(output: PipedWriter) {
     for (arg in arguments) {
       try {
-        FileReader(arg).forEachLine { output.write(arg) }
+        FileReader(arg).forEachLine { output.write(it + System.lineSeparator()) }
       } catch (e: Exception) {
-        output.write("cat: ${e.message}")
+        throw Exception("cat: ${e.message}")
       }
-      output.write("\n")
+      output.write(System.lineSeparator())
     }
   }
 

@@ -21,8 +21,9 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
     val process = createProcess()
 
     val processWriter = OutputStreamWriter(process.outputStream)
-    input.readLines().forEach { processWriter.write("$it\n") }
+    input.readLines().forEach { processWriter.write(it + System.lineSeparator()) }
     processWriter.flush()
+    processWriter.close()
 
     startProcess(process, output)
   }
@@ -32,12 +33,13 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
    * in case when the command is executed in less than 10 seconds
    */
   private fun startProcess(process: Process, output: PipedWriter) {
-    val streamGobbler = StreamGobbler(process.inputStream) { s -> output.write("$s\n") }
-    val errorGobbler = StreamGobbler(process.errorStream) { s -> output.write("$s\n") }
+    val streamGobbler = StreamGobbler(process.inputStream) { s -> output.write(s + System.lineSeparator()) }
+    val errorGobbler = StreamGobbler(process.errorStream) { s -> output.write(s + System.lineSeparator()) }
     val executor = Executors.newSingleThreadExecutor()
     executor.submit(streamGobbler)
     executor.submit(errorGobbler)
     process.waitFor(10, TimeUnit.SECONDS)
+    executor.shutdown()
   }
 
   override fun execute(output: PipedWriter) {
