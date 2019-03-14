@@ -3,6 +3,7 @@ package hse.nedikov.bash.logic.commands
 import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.lang.Exception
+import java.util.*
 
 /**
  * wc command which calculates count of lines, words and bytes in files or input
@@ -29,6 +30,7 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
       try {
         val r = calcInput(FileReader(arg))
         output.write("${r.lines} ${r.words} ${r.bytes} $arg" + System.lineSeparator())
+        result += r
       } catch (e: Exception) {
         throw Exception("wc: ${e.message}" + System.lineSeparator())
       }
@@ -38,11 +40,10 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
 
   private fun calcInput(input: Reader): WCResult {
     val result = WCResult()
-    input.forEachLine {
-      result.lines++
-      result.words += it.split(Regex("\\s+")).size
-      result.bytes += (it + System.lineSeparator()).toByteArray().size
-    }
+    val text = input.readText()
+    result.lines = text.split("\r\n|\r|\n").size
+    result.words = StringTokenizer(text).countTokens()
+    result.bytes = text.toByteArray().size
     return result
   }
 

@@ -53,8 +53,8 @@ class CommandsTest {
 
   @Test
   fun wordCountSimple() {
-    val reader = WordCount(list()).execute(readerFromString("lol kek   cheburek"))
-    assertEquals("1 3 " + (18 + System.lineSeparator().toByteArray().size), stringFromReader(reader))
+    val reader = WordCount(list()).execute(readerFromString(" lol kek   cheburek"))
+    assertEquals("1 3 19", stringFromReader(reader))
   }
 
   companion object {
