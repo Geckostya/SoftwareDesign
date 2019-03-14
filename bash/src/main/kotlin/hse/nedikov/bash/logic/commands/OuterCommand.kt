@@ -38,7 +38,6 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
     val executor = Executors.newSingleThreadExecutor()
     executor.submit(streamGobbler)
     executor.submit(errorGobbler)
-    process.waitFor(10, TimeUnit.SECONDS)
     executor.shutdown()
   }
 
