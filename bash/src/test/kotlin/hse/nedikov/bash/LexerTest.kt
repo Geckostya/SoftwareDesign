@@ -1,49 +1,94 @@
 package hse.nedikov.bash
 
-import hse.nedikov.bash.logic.commands.Echo
-import hse.nedikov.bash.logic.commands.WordCount
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.*
 
 class LexerTest {
   @Test
-  fun empty() {
-    assertTrue(lex(ArrayList(), environment).isEmpty())
+  fun lexEmptyString() {
+    val r = Lexer("") { _ -> "" }.lex()
+    assertEquals(0, r.size)
   }
 
   @Test
-  fun simpleCommand() {
-    val result = lex(list("echo"), environment)
-    assertEquals(1, result.size)
-    assertTrue(result[0] is Echo)
+  fun lexWord() {
+    val r = Lexer("lol") { _ -> "" }.lex()
+    assertEquals(1, r.size)
+    assertEquals("lol", r[0])
   }
 
   @Test
-  fun commandWithArgs() {
-    val result = lex(list("echo", "lol", "kek"), environment)
-    assertEquals(1, result.size)
-    assertTrue(result[0] is Echo)
+  fun lexTwoWords() {
+    val r = Lexer("lol lal") { "" }.lex()
+    assertEquals(2, r.size)
+    assertEquals("lol", r[0])
+    assertEquals("lal", r[1])
   }
 
   @Test
-  fun pipedCommands() {
-    val result = lex(list("echo", "|", "wc"), environment)
-    assertEquals(2, result.size)
-    assertTrue(result[0] is Echo)
-    assertTrue(result[1] is WordCount)
+  fun lexVariable() {
+    val r = Lexer("\$lol", lolToLal).lex()
+    assertEquals(1, r.size)
+    assertEquals("lal", r[0])
   }
 
+  @Test
+  fun lexVariable2() {
+    val r = Lexer("\$lol \$lel", lolToLal).lex()
+    assertEquals(1, r.size)
+    assertEquals("lal", r[0])
+  }
 
   @Test
-  fun pipedCommandsWithArg() {
-    val result = lex(list("echo", "lol", "kek", "|", "wc", "cv"), environment)
-    assertEquals(2, result.size)
-    assertTrue(result[0] is Echo)
-    assertTrue(result[1] is WordCount)
+  fun lexInQuotes() {
+    val r = Lexer("'lal lol '") { "" }.lex()
+    assertEquals(1, r.size)
+    assertEquals("lal lol ", r[0])
+  }
+
+  @Test
+  fun lexInDQuotes() {
+    val r = Lexer("\"lal lol \"") { "" }.lex()
+    assertEquals(1, r.size)
+    assertEquals("lal lol ", r[0])
+  }
+
+  @Test
+  fun lexInDQuotesWithVariable() {
+    val r = Lexer("\"lal \$lol \"", lolToLal).lex()
+    assertEquals(1, r.size)
+    assertEquals("lal lal ", r[0])
+  }
+
+  @Test
+  fun lexInQuotesWithVariable() {
+    val r = Lexer("'lal \$lol '", lolToLal).lex()
+    assertEquals(1, r.size)
+    assertEquals("lal \$lol ", r[0])
+  }
+
+  @Test
+  fun lexAssign() {
+    val r = Lexer("  lol=kek", lolToLal).lex()
+    assertEquals(2, r.size)
+    assertEquals("lol=", r[0])
+    assertEquals("kek", r[1])
+  }
+
+  @Test
+  fun lexAssignInQuotes() {
+    val r = Lexer("  lol='kek lol'", lolToLal).lex()
+    assertEquals(2, r.size)
+    assertEquals("lol=", r[0])
+    assertEquals("kek lol", r[1])
   }
 
   companion object {
-    val environment = Environment()
+    val lolToLal: (String) -> String = {
+      when (it) {
+        "lol" -> "lal"
+        else -> ""
+      }
+    }
   }
 }

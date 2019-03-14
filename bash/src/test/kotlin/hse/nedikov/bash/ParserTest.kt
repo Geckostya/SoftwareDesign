@@ -1,94 +1,49 @@
 package hse.nedikov.bash
 
-import org.junit.Assert.assertEquals
+import hse.nedikov.bash.logic.commands.Echo
+import hse.nedikov.bash.logic.commands.WordCount
+import org.junit.Assert.*
 import org.junit.Test
+import java.util.*
 
 class ParserTest {
   @Test
-  fun parseEmptyString() {
-    val r = Parser("") { _ -> "" }.parse()
-    assertEquals(0, r.size)
+  fun empty() {
+    assertTrue(parse(ArrayList(), environment).isEmpty())
   }
 
   @Test
-  fun parseWord() {
-    val r = Parser("lol") { _ -> "" }.parse()
-    assertEquals(1, r.size)
-    assertEquals("lol", r[0])
+  fun simpleCommand() {
+    val result = parse(list("echo"), environment)
+    assertEquals(1, result.size)
+    assertTrue(result[0] is Echo)
   }
 
   @Test
-  fun parseTwoWords() {
-    val r = Parser("lol lal") { "" }.parse()
-    assertEquals(2, r.size)
-    assertEquals("lol", r[0])
-    assertEquals("lal", r[1])
+  fun commandWithArgs() {
+    val result = parse(list("echo", "lol", "kek"), environment)
+    assertEquals(1, result.size)
+    assertTrue(result[0] is Echo)
   }
 
   @Test
-  fun parseVariable() {
-    val r = Parser("\$lol", lolToLal).parse()
-    assertEquals(1, r.size)
-    assertEquals("lal", r[0])
+  fun pipedCommands() {
+    val result = parse(list("echo", "|", "wc"), environment)
+    assertEquals(2, result.size)
+    assertTrue(result[0] is Echo)
+    assertTrue(result[1] is WordCount)
   }
 
-  @Test
-  fun parseVariable2() {
-    val r = Parser("\$lol \$lel", lolToLal).parse()
-    assertEquals(1, r.size)
-    assertEquals("lal", r[0])
-  }
 
   @Test
-  fun parseInQuotes() {
-    val r = Parser("'lal lol '") { "" }.parse()
-    assertEquals(1, r.size)
-    assertEquals("lal lol ", r[0])
-  }
-
-  @Test
-  fun parseInDQuotes() {
-    val r = Parser("\"lal lol \"") { "" }.parse()
-    assertEquals(1, r.size)
-    assertEquals("lal lol ", r[0])
-  }
-
-  @Test
-  fun parseInDQuotesWithVariable() {
-    val r = Parser("\"lal \$lol \"", lolToLal).parse()
-    assertEquals(1, r.size)
-    assertEquals("lal lal ", r[0])
-  }
-
-  @Test
-  fun parseInQuotesWithVariable() {
-    val r = Parser("'lal \$lol '", lolToLal).parse()
-    assertEquals(1, r.size)
-    assertEquals("lal \$lol ", r[0])
-  }
-
-  @Test
-  fun parseAssign() {
-    val r = Parser("  lol=kek", lolToLal).parse()
-    assertEquals(2, r.size)
-    assertEquals("lol=", r[0])
-    assertEquals("kek", r[1])
-  }
-
-  @Test
-  fun parseAssignInQuotes() {
-    val r = Parser("  lol='kek lol'", lolToLal).parse()
-    assertEquals(2, r.size)
-    assertEquals("lol=", r[0])
-    assertEquals("kek lol", r[1])
+  fun pipedCommandsWithArg() {
+    val result = parse(list("echo", "lol", "kek", "|", "wc", "cv"), environment)
+    assertEquals(2, result.size)
+    assertTrue(result[0] is Echo)
+    assertTrue(result[1] is WordCount)
   }
 
   companion object {
-    val lolToLal: (String) -> String = {
-      when (it) {
-        "lol" -> "lal"
-        else -> ""
-      }
-    }
+    val environment = Environment()
   }
 }

@@ -19,7 +19,7 @@ class Pwd : Command() {
    * Prints current working directory to the output
    */
   override fun execute(output: PipedWriter) {
-    output.write(System.getProperty("user.dir") + "\n")
+    output.write(System.getProperty("user.dir") + System.lineSeparator())
   }
 
 }

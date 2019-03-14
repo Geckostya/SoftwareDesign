@@ -3,6 +3,7 @@ package hse.nedikov.bash.logic.commands
 import hse.nedikov.bash.logic.Command
 import java.io.*
 import java.lang.Exception
+import java.util.*
 
 /**
  * wc command which calculates count of lines, words and bytes in files or input
@@ -16,7 +17,7 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
       return execute(output)
     }
     val r = calcInput(input)
-    output.write("${r.lines} ${r.words} ${r.bytes}\n")
+    output.write("${r.lines} ${r.words} ${r.bytes}" + System.lineSeparator())
     output.close()
   }
 
@@ -28,21 +29,21 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
     for (arg in arguments) {
       try {
         val r = calcInput(FileReader(arg))
-        output.write("${r.lines} ${r.words} ${r.bytes} $arg\n")
+        output.write("${r.lines} ${r.words} ${r.bytes} $arg" + System.lineSeparator())
+        result += r
       } catch (e: Exception) {
-        output.write("wc: ${e.message}\n")
+        throw Exception("wc: ${e.message}" + System.lineSeparator())
       }
     }
-    output.write("${result.lines} ${result.words} ${result.bytes} total\n")
+    output.write("${result.lines} ${result.words} ${result.bytes} total" + System.lineSeparator())
   }
 
   private fun calcInput(input: Reader): WCResult {
     val result = WCResult()
-    input.forEachLine {
-      result.lines++
-      result.words += it.split(' ').size
-      result.bytes += it.toByteArray().size
-    }
+    val text = input.readText()
+    result.lines = text.split("\r\n|\r|\n").size
+    result.words = StringTokenizer(text).countTokens()
+    result.bytes = text.toByteArray().size
     return result
   }
 

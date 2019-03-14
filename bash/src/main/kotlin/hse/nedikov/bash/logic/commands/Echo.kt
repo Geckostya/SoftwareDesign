@@ -13,9 +13,9 @@ class Echo(private val arguments: ArrayList<String>) : Command() {
    * Prints arguments which are joined with spaces to the output
    */
   override fun execute(output: PipedWriter) {
-    val sj = StringJoiner(" ", "", "\n")
-    arguments.forEach { sj.add(it) }
-    output.write(sj.toString())
+    val result = java.lang.String.join(" ", arguments)
+    output.write(result.toString())
+    output.close()
   }
 
   /**
