@@ -33,7 +33,7 @@ class Grep(private val arguments: ArrayList<String>) : Command() {
     try {
       return ArgParser(arr).parseInto(constructor)
     } catch (e: ShowHelpException) {
-      println(e.printUserMessage(output, "grep", 80))
+      e.printUserMessage(output, "grep", 80)
     }
     return null;
   }
@@ -41,11 +41,10 @@ class Grep(private val arguments: ArrayList<String>) : Command() {
   private fun grep(input: Reader, output: PipedWriter, args: PipedGrepArgs) {
     var linesToWrite = 0;
     input.forEachLine {
-      val matchString = if (args.ignoreCase) it.toLowerCase() else it
-      val matchPattern = if (args.ignoreCase) args.pattern.toLowerCase() else args.pattern
-      val wordEnd = if (args.wordRegexp) "(\\s|^|\$)" else ""
-      val regex = Regex(".*?$wordEnd$matchPattern$wordEnd.*")
-      if (matchString.matches(regex)) {
+      val wordEnd = if (args.wordRegexp) "\\b" else ""
+      val matchPattern = "$wordEnd${args.pattern}$wordEnd"
+      val regex = if (args.ignoreCase) Regex(matchPattern, RegexOption.IGNORE_CASE) else Regex(matchPattern)
+      if (it.contains(regex)) {
         output.write("$it\n")
         linesToWrite = args.afterContext;
       } else if (linesToWrite > 0) {
