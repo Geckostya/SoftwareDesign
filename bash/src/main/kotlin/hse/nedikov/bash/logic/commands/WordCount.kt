@@ -41,7 +41,7 @@ class WordCount(private val arguments: ArrayList<String>) : Command() {
   private fun calcInput(input: Reader): WCResult {
     val result = WCResult()
     val text = input.readText()
-    result.lines = text.split("\r\n|\r|\n").size
+    result.lines = text.split(Regex("\r\n|\r|\n")).size
     result.words = StringTokenizer(text).countTokens()
     result.bytes = text.toByteArray().size
     return result

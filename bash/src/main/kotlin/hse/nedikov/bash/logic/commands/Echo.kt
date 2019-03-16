@@ -15,7 +15,6 @@ class Echo(private val arguments: ArrayList<String>) : Command() {
   override fun execute(output: PipedWriter) {
     val result = java.lang.String.join(" ", arguments)
     output.write(result.toString())
-    output.close()
   }
 
   /**
