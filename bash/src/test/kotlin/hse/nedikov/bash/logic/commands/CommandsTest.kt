@@ -66,7 +66,7 @@ class CommandsTest {
       lolol lo
       looolol
       lol
-    """.trimIndent(), stringFromReader(reader))
+    """.trimIndent(), toLF(stringFromReader(reader)))
   }
 
   @Test
@@ -76,7 +76,7 @@ class CommandsTest {
       lol kek
       kek lol
       lol
-    """.trimIndent(), stringFromReader(reader))
+    """.trimIndent(), toLF(stringFromReader(reader)))
   }
 
   @Test
@@ -89,13 +89,13 @@ class CommandsTest {
       looolol
       kekek LOL
       lol
-    """.trimIndent(), stringFromReader(reader))
+    """.trimIndent(), toLF(stringFromReader(reader)))
   }
 
   @Test
   fun grepAfterContextTest() {
     var reader = Grep(list("lol", "-A", "5")).execute(readerFromString(keklolString))
-    assertEquals(keklolString, stringFromReader(reader))
+    assertEquals(keklolString, toLF(stringFromReader(reader)))
     reader = Grep(list("lol", "-A", "1")).execute(readerFromString(keklolString))
     assertEquals("""
       lol kek
@@ -105,7 +105,7 @@ class CommandsTest {
       looolol
       kek
       lol
-    """.trimIndent(), stringFromReader(reader))
+    """.trimIndent(), toLF(stringFromReader(reader)))
   }
 
   companion object {
@@ -120,6 +120,9 @@ class CommandsTest {
       reader.readLines().forEach { joiner.add(it) }
       return joiner.toString()
     }
+
+    fun toLF(str: String) = str.replace("\r\n", "\n")
+
 
     val keklolString = """
       lol kek
