@@ -51,6 +51,7 @@ abstract class Command {
         "pwd" -> Pwd()
         "exit" -> Exit(env)
         "cat" -> Cat(args)
+        "grep" -> Grep(args)
         else -> OuterCommand(name, args)
       }
     }

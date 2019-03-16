@@ -57,6 +57,57 @@ class CommandsTest {
     assertEquals("1 3 19", stringFromReader(reader))
   }
 
+  @Test
+  fun grepTest() {
+    val reader = Grep(list("lol")).execute(readerFromString(keklolString))
+    assertEquals("""
+      lol kek
+      kek lol
+      lolol lo
+      looolol
+      lol
+    """.trimIndent(), toLF(stringFromReader(reader)))
+  }
+
+  @Test
+  fun grepWordRegexpTest() {
+    val reader = Grep(list("lol", "-w")).execute(readerFromString(keklolString))
+    assertEquals("""
+      lol kek
+      kek lol
+      lol
+    """.trimIndent(), toLF(stringFromReader(reader)))
+  }
+
+  @Test
+  fun grepIgnoreCaseTest() {
+    val reader = Grep(list("LoL", "-i")).execute(readerFromString(keklolString))
+    assertEquals("""
+      lol kek
+      kek lol
+      lolol lo
+      looolol
+      kekek LOL
+      lol
+    """.trimIndent(), toLF(stringFromReader(reader)))
+  }
+
+  @Test
+  fun grepAfterContextTest() {
+    var reader = Grep(list("lol", "-A", "5")).execute(readerFromString(keklolString))
+    assertEquals(keklolString, toLF(stringFromReader(reader)))
+    reader = Grep(list("lol", "-A", "1")).execute(readerFromString(keklolString))
+    assertEquals("""
+      lol kek
+      kek lol
+      kek kek
+      lolol lo
+      looolol
+      kek
+      lol
+    """.trimIndent(), toLF(stringFromReader(reader)))
+  }
+
   companion object {
     fun readerFromString(string: String): PipedReader {
       val reader = PipedReader()
@@ -69,5 +120,23 @@ class CommandsTest {
       reader.readLines().forEach { joiner.add(it) }
       return joiner.toString()
     }
+
+    fun toLF(str: String) = str.replace("\r\n", "\n")
+
+
+    val keklolString = """
+      lol kek
+      kek lol
+      kek kek
+      ke
+      eeek
+      lolol lo
+      looolol
+      kek
+      kekek LOL
+      kekekekekek
+      kekekekekekekek
+      lol
+    """.trimIndent()
   }
 }
