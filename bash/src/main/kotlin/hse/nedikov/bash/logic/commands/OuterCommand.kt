@@ -2,11 +2,8 @@ package hse.nedikov.bash.logic.commands
 
 import hse.nedikov.bash.logic.Command
 import java.io.*
-import java.util.concurrent.Executors
-import java.io.InputStreamReader
-import java.io.BufferedReader
 import java.util.*
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.Executors
 
 /**
  * Class for calling commands in outer interpreter
@@ -38,6 +35,7 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
     val executor = Executors.newSingleThreadExecutor()
     executor.submit(streamGobbler)
     executor.submit(errorGobbler)
+    process.waitFor()
     executor.shutdown()
   }
 
