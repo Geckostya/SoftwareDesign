@@ -22,8 +22,7 @@ class Ls(private val arguments: ArrayList<String>, private val env: Environment)
      */
     override fun execute(output: PipedWriter) {
         if (arguments.size > 1) {
-            output.write("ls: too many arguments")
-            return
+            throw RuntimeException("ls: too many arguments")
         }
         printFile(env.getCanonicalFile(arguments.getOrElse(0) { "./" }), output)
     }
@@ -32,7 +31,7 @@ class Ls(private val arguments: ArrayList<String>, private val env: Environment)
         when {
             file.isFile -> output.write(file.name + System.lineSeparator())
             file.isDirectory -> file.listFiles().sorted().forEach { output.write(it.name + System.lineSeparator()) }
-            else -> output.write("ls: file or directory not found" + System.lineSeparator())
+            else -> throw RuntimeException("ls: file or directory not found" + System.lineSeparator())
         }
     }
 }

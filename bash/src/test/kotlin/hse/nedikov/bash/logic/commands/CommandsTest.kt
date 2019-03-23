@@ -18,6 +18,16 @@ class CommandsTest {
   @JvmField
   val tmpFolder = TemporaryFolder()
 
+  @Test(expected = RuntimeException::class)
+  fun lsTooManyArgumentsTest() {
+    Ls(list("arg1", "arg2"), Environment()).execute()
+  }
+
+  @Test(expected = RuntimeException::class)
+  fun lsDirectoryNotFoundTest() {
+    Ls(list("baddirectoryyyyyy"), Environment()).execute()
+  }
+
   @Test
   fun lsNoArgumentsTest() {
     tmpFolder.newFile("file")
@@ -75,7 +85,7 @@ class CommandsTest {
   }
 
 
-    @Test(expected = RuntimeException::class)
+  @Test(expected = RuntimeException::class)
   fun cdDirectoryNotFoundTest() {
     Cd(list("baddirectoryyyyyy"), Environment()).execute()
   }
