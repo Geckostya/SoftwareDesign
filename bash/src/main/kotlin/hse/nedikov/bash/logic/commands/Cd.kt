@@ -30,8 +30,6 @@ class Cd(private val arguments: ArrayList<String>, override val env: Environment
 
         val path = arguments.getOrElse(0) { System.getProperty("user.home") }
 
-        if (!env.updateDir(path)) {
-            throw DirectoryUpdateException("can't update current directory: specified directory doesn't exist or not a directory")
-        }
+        env.updateDir(path)
     }
 }

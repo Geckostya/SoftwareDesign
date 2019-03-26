@@ -1,7 +1,13 @@
 package hse.nedikov.bash
 
 import hse.nedikov.bash.Environment.State.*
+import hse.nedikov.bash.exceptions.DirectoryUpdateException
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.Files
+
+
 
 /**
  * Environment of the interpreter
@@ -13,22 +19,20 @@ class Environment {
 
   private val varMap = HashMap<String, String>()
   private var state: State = Working
-  private var curDir = File("./")
+  private var curPath = Paths.get(".").toAbsolutePath().normalize()
 
   /**
    * Switches directory
    * @param change new directory path
    * @return true is change was successful false otherwise
    */
-  fun updateDir(change: String): Boolean {
-    val newDirectory = getFile(change)
-    val success = newDirectory.isDirectory
-
-    if (success) {
-      curDir = newDirectory
+  fun updateDir(change: String) {
+    val newDirectory = curPath.resolve(change)
+    if (!Files.exists(newDirectory) || !Files.isDirectory(newDirectory)) {
+       throw DirectoryUpdateException("can't update current directory: specified directory doesn't exist or not a directory")
     }
 
-    return success
+    curPath = newDirectory.toAbsolutePath().normalize()
   }
 
   /**
@@ -36,8 +40,8 @@ class Environment {
    * @param path path to convert
    * @return full path
    */
-  fun getPath(path: String): String {
-    return getFile(path).canonicalPath
+  fun getPathString(path: String): String {
+    return getPath(path).toAbsolutePath().normalize().toString()
   }
 
   /**
@@ -45,8 +49,17 @@ class Environment {
    * @param path path to file
    * @return file for path
    */
+  private fun getPath(path: String): Path {
+    return curPath.resolve(path)
+  }
+
+  /**
+   * Function for getting Path for path string
+   * @param path path string
+   * @return Path for path string
+   */
   fun getFile(path: String): File {
-    return curDir.resolve(path)
+    return getPath(path).toFile()
   }
 
   /**

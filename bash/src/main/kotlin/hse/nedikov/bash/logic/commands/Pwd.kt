@@ -20,7 +20,7 @@ class Pwd(override val env: Environment) : Command(env) {
    * Prints current working directory to the output
    */
   override fun execute(output: PipedWriter) {
-    output.write(env.getPath("./") + "\n")
+    output.write(env.getPathString("./") + "\n")
   }
 
 }

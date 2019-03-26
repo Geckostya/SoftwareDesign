@@ -28,7 +28,7 @@ class WordCount(private val arguments: ArrayList<String>, override val env: Envi
     val result = WCResult()
     for (arg in arguments) {
       try {
-        val r = calcInput(FileReader(env.getPath(arg)))
+        val r = calcInput(FileReader(env.getPathString(arg)))
         output.write("${r.lines} ${r.words} ${r.bytes} $arg\n")
       } catch (e: Exception) {
         output.write("wc: ${e.message}\n")

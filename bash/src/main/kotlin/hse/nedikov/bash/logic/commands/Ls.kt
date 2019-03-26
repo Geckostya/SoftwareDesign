@@ -1,7 +1,6 @@
 package hse.nedikov.bash.logic.commands
 
 import hse.nedikov.bash.Environment
-import hse.nedikov.bash.exceptions.DirectoryUpdateException
 import hse.nedikov.bash.exceptions.IncorrectArgumentsException
 import hse.nedikov.bash.logic.Command
 import java.io.FileNotFoundException

@@ -23,7 +23,7 @@ class Cat(private val arguments: ArrayList<String>, override val env: Environmen
   override fun execute(output: PipedWriter) {
     for (arg in arguments) {
       try {
-        FileReader(env.getPath(arg)).forEachLine { output.write(arg) }
+        FileReader(env.getPathString(arg)).forEachLine { output.write(arg) }
       } catch (e: Exception) {
         output.write("cat: ${e.message}")
       }
