@@ -1,6 +1,8 @@
 package hse.nedikov.bash.logic.commands
 
 import hse.nedikov.bash.Environment
+import hse.nedikov.bash.exceptions.DirectoryUpdateException
+import hse.nedikov.bash.exceptions.IncorrectArgumentsException
 import hse.nedikov.bash.logic.Command
 import java.io.PipedReader
 import java.io.PipedWriter
@@ -23,14 +25,13 @@ class Cd(private val arguments: ArrayList<String>, override val env: Environment
      */
     override fun execute(output: PipedWriter) {
         if (arguments.size > 1) {
-            output.write("Error: extra args in cd command")
-            return
+            throw IncorrectArgumentsException("extra arguments in cd command")
         }
 
         val path = arguments.getOrElse(0) { "./" }
 
         if (!env.updateDir(path)) {
-            output.write("File not found error")
+            throw DirectoryUpdateException("can't update current directory: specified directory doesn't exist or not a directory")
         }
     }
 }

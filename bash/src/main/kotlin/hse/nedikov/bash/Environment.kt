@@ -46,11 +46,7 @@ class Environment {
    * @return file for path
    */
   fun getFile(path: String): File {
-    return if (File(path).isAbsolute) {
-      File(path).canonicalFile
-    } else {
-      File(curDir, path).canonicalFile
-    }
+    return curDir.resolve(path)
   }
 
   /**

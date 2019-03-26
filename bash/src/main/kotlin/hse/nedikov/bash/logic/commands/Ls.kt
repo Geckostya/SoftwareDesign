@@ -1,7 +1,10 @@
 package hse.nedikov.bash.logic.commands
 
 import hse.nedikov.bash.Environment
+import hse.nedikov.bash.exceptions.DirectoryUpdateException
+import hse.nedikov.bash.exceptions.IncorrectArgumentsException
 import hse.nedikov.bash.logic.Command
+import java.io.FileNotFoundException
 import java.io.PipedReader
 import java.io.PipedWriter
 
@@ -25,16 +28,14 @@ class Ls(private val arguments: ArrayList<String>, override val env: Environment
      */
     override fun execute(output: PipedWriter) {
         if (arguments.size > 1) {
-            output.write("Error: extra args in ls command")
-            return
+            throw IncorrectArgumentsException("extra arguments in ls command")
         }
 
         val arg = env.getFile(arguments.getOrElse(0) { "./" })
         val sep = System.lineSeparator()
 
         if (!(arg.isFile || arg.isDirectory)) {
-            output.write("Directory not found for ls")
-            return
+            throw FileNotFoundException("Not a file or directory")
         }
 
         if (arg.isDirectory) {
