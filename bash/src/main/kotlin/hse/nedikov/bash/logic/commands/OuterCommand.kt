@@ -49,7 +49,7 @@ class OuterCommand(private val name: String, private val arguments: ArrayList<St
   private fun createProcess(): Process {
     val environmentStart = if (isWindows) "cmd.exe /c" else "sh -c"
     val command = StringJoiner(" ", "$name ", "").also { joiner -> arguments.forEach { joiner.add(it) } }.toString()
-    return Runtime.getRuntime().exec("$environmentStart $command")
+    return Runtime.getRuntime().exec("$environmentStart $command", null, env.getFile("./"))
   }
 
   private class StreamGobbler(private val inputStream: InputStream, private val consumer: (String) -> Unit) : Runnable {
